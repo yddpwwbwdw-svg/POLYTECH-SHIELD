@@ -1,55 +1,159 @@
-document.addEventListener("DOMContentLoaded", function () {
+/* =========================================================
+   POLYTECH SHIELD
+   SCRIPT.JS
+========================================================= */
 
-    const boton = document.querySelector(".menu-toggle");
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* =====================================================
+       MENÚ MÓVIL
+    ===================================================== */
+
+    const menuToggle = document.querySelector(".menu-toggle");
     const menu = document.querySelector(".menu");
 
-    boton.addEventListener("click", function () {
-        menu.classList.toggle("activo");
-    });
+    if (menuToggle && menu) {
 
-    document.querySelectorAll(".menu a").forEach(link => {
-        link.addEventListener("click", () => {
-            menu.classList.remove("activo");
+        menuToggle.addEventListener("click", () => {
+
+            menu.classList.toggle("activo");
+
+            const abierto = menu.classList.contains("activo");
+
+            menuToggle.setAttribute(
+                "aria-expanded",
+                abierto
+            );
+
+            menuToggle.textContent = abierto ? "✕" : "☰";
+
         });
-    });
 
-});
-//=============================
-// MENU AL HACER SCROLL
-//=============================
 
-const header = document.querySelector(".header");
+        /* ================================================
+           CERRAR MENÚ AL SELECCIONAR UNA OPCIÓN
+        ================================================ */
 
-window.addEventListener("scroll", ()=>{
+        const enlacesMenu = menu.querySelectorAll("a");
 
-    if(window.scrollY > 80){
+        enlacesMenu.forEach((enlace) => {
 
-        header.classList.add("scroll");
+            enlace.addEventListener("click", () => {
 
-    }else{
+                menu.classList.remove("activo");
 
-        header.classList.remove("scroll");
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                menuToggle.textContent = "☰";
+
+            });
+
+        });
+
+
+        /* ================================================
+           CERRAR MENÚ SI CAMBIAMOS A ESCRITORIO
+        ================================================ */
+
+        window.addEventListener("resize", () => {
+
+            if (window.innerWidth > 768) {
+
+                menu.classList.remove("activo");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                menuToggle.textContent = "☰";
+
+            }
+
+        });
 
     }
 
-});
-//=============================
-// REVEAL
-//=============================
 
-const reveals=document.querySelectorAll(".reveal");
+    /* =====================================================
+       ANIMACIÓN REVEAL
+    ===================================================== */
 
-window.addEventListener("scroll",()=>{
+    const elementosReveal = document.querySelectorAll(".reveal");
 
-    reveals.forEach(section=>{
+    if (elementosReveal.length > 0) {
 
-        const top=section.getBoundingClientRect().top;
+        const observer = new IntersectionObserver(
 
-        const windowHeight=window.innerHeight;
+            (entradas, observer) => {
 
-        if(top<windowHeight-120){
+                entradas.forEach((entrada) => {
 
-            section.classList.add("active");
+                    if (entrada.isIntersecting) {
+
+                        entrada.target.classList.add("visible");
+
+                        observer.unobserve(
+                            entrada.target
+                        );
+
+                    }
+
+                });
+
+            },
+
+            {
+                threshold: 0.15
+            }
+
+        );
+
+
+        elementosReveal.forEach((elemento) => {
+
+            observer.observe(elemento);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       CERRAR MENÚ AL HACER CLICK FUERA
+    ===================================================== */
+
+    document.addEventListener("click", (evento) => {
+
+        if (!menuToggle || !menu) {
+            return;
+        }
+
+        const clickDentroDelMenu =
+            menu.contains(evento.target);
+
+        const clickEnBoton =
+            menuToggle.contains(evento.target);
+
+
+        if (
+            window.innerWidth <= 768 &&
+            menu.classList.contains("activo") &&
+            !clickDentroDelMenu &&
+            !clickEnBoton
+        ) {
+
+            menu.classList.remove("activo");
+
+            menuToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            menuToggle.textContent = "☰";
 
         }
 
